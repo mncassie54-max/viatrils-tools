@@ -1,6 +1,7 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/+esm";
 
 const cfg = window.promptthonConfig || {};
+const isPreview = new URLSearchParams(location.search).get("preview") === "1";
 const configured = /^https:\/\/[a-z0-9.-]+\.supabase\.co$/i.test(cfg.url || "") && (cfg.anonKey || "").length > 30;
 const db = configured ? createClient(cfg.url, cfg.anonKey, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
@@ -41,7 +42,10 @@ function totalScore(s) {
 }
 function submitProgress() {
   const finished = judgeData.teams.filter((t) => t.submitted).length;
-  $("#judge-progress").textContent = finished + " / " + judgeData.teams.length + "개 팀 평가 완료";
+  const total = judgeData.teams.length;
+  $("#judge-progress").textContent = finished + " / " + total + "개 팀 평가 완료";
+  const bar = $("#progress-fill");
+  if (bar) bar.style.width = (total ? finished / total * 100 : 0) + "%";
 }
 async function loadJudge(code) {
   if (!db) return;
@@ -68,10 +72,12 @@ async function loadJudge(code) {
   } else $("#judge-evaluation").innerHTML = '<div class="panel empty">아직 등록된 평가 대상 팀이 없습니다.</div>';
 }
 function renderJudgeTeams() {
-  $("#judge-team-list").innerHTML = judgeData.teams.map((t) =>
-    '<button type="button" class="team ' + (t.id === currentTeamId ? "selected" : "") + '" data-team="' + safe(t.id) + '">' +
-      '<div class="sectionhead" style="margin-bottom:8px"><h3>' + safe(t.name) + '</h3><span class="pill ' + (t.submitted ? "" : "pending") + '">' +
-      (t.submitted ? "제출 완료" : "평가 대기") + "</span></div><p>" + safe(t.description || "제출 결과보고서를 확인해 주세요.") + "</p>" +
+  $("#judge-team-list").innerHTML = judgeData.teams.map((t, i) =>
+    '<button type="button" class="team ' + (t.id === currentTeamId ? "selected" : "") + '" data-team="' + safe(t.id) + '" aria-current="' + (t.id === currentTeamId ? "step" : "false") + '">' +
+      '<div class="sectionhead" style="margin-bottom:8px"><h3>' + String(i + 1).padStart(2, "0") + ' &nbsp; ' + safe(t.name) +
+      '</h3><span class="pill ' + (t.submitted ? "" : "pending") + '">' +
+      (t.submitted ? "완료" : "대기") + "</span></div><p>" +
+      safe(t.description || "제출 결과보고서를 확인해 주세요.") + "</p>" +
       '<span class="hint">평가 내용 보기 →</span></button>'
   ).join("");
   document.querySelectorAll("[data-team]").forEach((b) => b.addEventListener("click", () => renderEvaluation(b.dataset.team)));
@@ -82,30 +88,49 @@ function renderEvaluation(teamId) {
   if (!team) return;
   renderJudgeTeams();
   const resultLink = safeUrl(team.result_url);
+  const projectHeading = '<div class="project-summary"><div class="project-card">' +
+    '<div class="project-symbol" aria-hidden="true">◇</div><div style="min-width:0"><div class="eyebrow">CURRENT PROJECT</div>' +
+    '<h2>' + safe(team.name) + '</h2><p class="hint">' + safe(team.description || "AI Prompthon · Final Project") + '</p></div></div>' +
+    '<div class="score-summary"><div class="score-symbol" aria-hidden="true">✦</div><div>' +
+    '<div class="hint">TOTAL SCORE</div><strong id="hero-total">' + (team.submitted ? "✓" : "0") +
+    '</strong><small>' + (team.submitted ? " 제출 완료" : " / 100") + '</small></div></div></div>';
   if (team.submitted) {
-    $("#judge-evaluation").innerHTML = '<div class="panel"><div class="sectionhead"><div><h2>' + safe(team.name) +
-      '</h2><p class="hint">제출 완료</p></div><span class="pill">최종 제출</span></div>' +
-      '<div class="info">이 팀에 대한 평가가 정상 제출되었습니다. 최종 제출된 평가는 수정할 수 없습니다.</div>' +
-      (resultLink ? '<p><a target="_blank" rel="noreferrer noopener" href="' + safe(resultLink) + '">결과보고서 다시 보기 ↗</a></p>' : "") + "</div>";
+    $("#judge-evaluation").innerHTML = projectHeading + '<div class="panel scoring-panel"><h2>평가 제출 완료</h2>' +
+      '<div class="info">이 팀에 대한 평가가 저장되었습니다. 최종 제출된 평가는 변경할 수 없습니다.</div>' +
+      (resultLink ? '<p><a target="_blank" rel="noreferrer noopener" href="' + safe(resultLink) +
+      '">제출 결과보고서 다시 보기 ↗</a></p>' : "") + "</div>";
     return;
   }
-  $("#judge-evaluation").innerHTML = '<div class="panel"><div class="sectionhead"><div><h2>' + safe(team.name) +
-      '</h2><p class="hint">' + safe(team.description || "") + '</p></div>' +
-      (resultLink ? '<a class="btn secondary" target="_blank" rel="noreferrer noopener" href="' + safe(resultLink) + '">결과보고서 보기 ↗</a>' : "") + "</div>" +
-      '<div class="info">1점 매우 미흡 · 2점 미흡 · 3점 보통 · 4점 우수 · 5점 매우 우수</div>' +
-      '<form id="evaluation-form">' +
-      rubric.map((item, i) => '<div class="score-row"><div class="score-line"><div><strong>' + (i + 1) + '. ' + safe(item.title) +
-      '</strong><div class="hint">' + safe(item.desc) + '</div></div><strong>' + item.weight + '점</strong></div>' +
-      '<div class="score-controls">' + [1, 2, 3, 4, 5].map((n) =>
-        '<span class="score-option"><input id="' + item.key + n + '" name="' + item.key + '" type="radio" value="' + n +
-        '" required/><label for="' + item.key + n + '">' + n + "</label></span>"
-      ).join("") + "</div></div>").join("") +
-      '<div class="field" style="margin-top:18px"><label for="review-comment">종합 의견 (선택)</label><textarea id="review-comment" maxlength="1000" placeholder="잘된 점 또는 보완이 필요한 부분을 적어 주세요."></textarea></div>' +
-      '<div class="total"><span>총점 (가중치 자동 적용)</span><strong id="live-total">0 / 100</strong></div>' +
-      '<p class="lock-note">최종 제출 버튼을 누르면 수정할 수 없습니다. 제출 전에 점수를 확인해 주세요.</p>' +
-      '<button class="btn" id="submit-review" type="submit">이 팀 평가 최종 제출</button></form></div>';
+  const icons = ["↗", "⚙", "◎", "✧"];
+  $("#judge-evaluation").innerHTML = projectHeading +
+    '<div class="panel scoring-panel"><div class="scoring-head"><span class="icon" aria-hidden="true">▥</span>' +
+    '<div><h2>Weighted Total Score</h2><p class="hint">각 항목의 1~5점 평가가 자동으로 환산됩니다.</p></div></div>' +
+    '<div class="info">평가 기준: 1점 매우 미흡 · 2점 미흡 · 3점 보통 · 4점 우수 · 5점 매우 우수</div>' +
+    '<form id="evaluation-form"><div class="scoring-rows">' +
+    rubric.map((item, i) =>
+      '<div class="score-row"><div class="score-line"><span class="criteria-index" aria-hidden="true">' + icons[i] +
+      '</span><div><strong>' + safe(item.title) + '</strong><div class="hint">' + safe(item.desc) + '</div></div></div>' +
+      '<div class="weight-badge">' + item.weight + '점</div>' +
+      '<div class="score-controls" role="radiogroup" aria-label="' + safe(item.title) + ' 점수">' +
+      [1, 2, 3, 4, 5].map((n) =>
+        '<span class="score-option"><input id="' + item.key + n + '" name="' + item.key +
+        '" type="radio" value="' + n + '" required/><label for="' + item.key + n + '">' + n + "</label></span>"
+      ).join("") + "</div></div>"
+    ).join("") + '</div>' +
+    '<div class="comment-head"><span aria-hidden="true">▤</span><strong>종합 의견</strong></div>' +
+    '<textarea id="review-comment" maxlength="1000" aria-label="종합 의견" placeholder="실무 적용 가능성과 향후 확산 방향 등에 관한 종합 의견을 작성해 주세요."></textarea>' +
+    (resultLink ? '<p style="margin:12px 0"><a class="btn secondary" target="_blank" rel="noreferrer noopener" href="' +
+    safe(resultLink) + '">제출 결과보고서 보기 ↗</a></p>' : "") +
+    '<div class="total"><span>가중치 적용 점수</span><strong id="live-total">0 / 100</strong></div>' +
+    '<div class="submit-actions"><button class="btn" id="submit-review" type="submit"' +
+    (isPreview ? ' disabled title="미리보기 화면에서는 제출할 수 없습니다"' : "") + '>' +
+    (isPreview ? '디자인 미리보기 · 제출 불가' : '✈ &nbsp; 최종 제출') +
+    '</button><p class="lock-note">' +
+    (isPreview ? "디자인 시연용 데이터입니다. 실제 평가나 저장은 이루어지지 않습니다." :
+    "최종 제출 후에는 수정할 수 없습니다. 제출 전 모든 점수를 확인해 주세요.") +
+    '</p></div></form></div>';
   $("#evaluation-form").addEventListener("change", updateTotal);
-  $("#evaluation-form").addEventListener("submit", submitReview);
+  if (!isPreview) $("#evaluation-form").addEventListener("submit", submitReview);
 }
 function formScores(form) {
   const f = new FormData(form);
@@ -114,7 +139,10 @@ function formScores(form) {
   return scores;
 }
 function updateTotal() {
-  $("#live-total").textContent = totalScore(formScores($("#evaluation-form"))) + " / 100";
+  const sum = totalScore(formScores($("#evaluation-form")));
+  $("#live-total").textContent = sum + " / 100";
+  const hero = $("#hero-total");
+  if (hero) hero.textContent = String(sum);
 }
 async function submitReview(ev) {
   ev.preventDefault();
@@ -281,11 +309,33 @@ function initEvents() {
 }
 async function init() {
   initEvents();
+  if (isPreview) {
+    judgeData = {
+      judge: { name: "디자인 미리보기" },
+      teams: [
+        { id: "demo-1", name: "AI Agent for Kakao Operations", description: "카카오 업무를 돕는 AI 에이전트 (예시)", submitted: false },
+        { id: "demo-2", name: "Pharma Insight Copilot", description: "정보 탐색 및 요약 도우미 (예시)", submitted: false },
+        { id: "demo-3", name: "Meeting Summary Assistant", description: "회의 결과 정리 자동화 (예시)", submitted: false },
+        { id: "demo-4", name: "Document Automation Agent", description: "반복 문서 작업 효율화 (예시)", submitted: false }
+      ]
+    };
+    setTab("judge");
+    $("#judge-login").hidden = true;
+    $("#judge-workspace").hidden = false;
+    $("#judge-greeting").textContent = "디자인 미리보기";
+    $("#judge-logout").hidden = true;
+    submitProgress();
+    renderEvaluation("demo-1");
+    notice("디자인 미리보기입니다. 예시 프로젝트와 점수는 실제 심사 데이터가 아니며 저장되지 않습니다.");
+    return;
+  }
   const mode = new URLSearchParams(location.search).get("mode");
   if (mode === "admin") setTab("admin");
   if (!configured) {
-    notice("연결 설정이 아직 완료되지 않았습니다. 저장소의 config.js에 Supabase Project URL과 공개용 anon key를 설정해 주세요.", "error");
-    document.querySelectorAll("button, input, textarea").forEach((e) => e.disabled = true);
+    setTab("judge");
+    $("#judge-login").innerHTML = '<h2>스코어링 화면 디자인 미리보기</h2><p class="subtitle" style="margin-bottom:18px">데이터 저장소 연결 전에도 심사 화면 디자인과 점수 자동 계산을 체험할 수 있습니다. 미리보기의 점수는 저장되지 않습니다.</p><a class="btn" href="?preview=1">디자인 미리보기 열기 ↗</a>';
+    $("#admin-login").innerHTML = '<h2>결과 대시보드</h2><p class="hint">심사 데이터 저장소 연결 후 운영자 로그인과 결과 집계가 활성화됩니다.</p>';
+    notice("현재 디자인 검토 단계입니다. 실제 심사 제출은 데이터 저장소 연결과 배포 설정을 마친 후 이용할 수 있습니다.");
     return;
   }
   const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
