@@ -33,12 +33,71 @@
     .footer{border-top:1px solid var(--line);padding:16px 0;color:#9aa4b3;font-size:11px}.admin-links{display:grid;grid-template-columns:1fr 1fr;gap:14px}.alert{margin:10px 0}
     @media(max-width:750px){.topbar{padding:0 18px}.shell{margin:25px auto 45px;padding:0 15px}.headline{display:block}.tabs{margin-top:20px;width:max-content}.panel{padding:18px}.evaluation,.grid2,.admin-links{grid-template-columns:1fr}.metric-grid{grid-template-columns:repeat(2,1fr)}h1{font-size:25px}.form-row{flex-direction:column;align-items:stretch}.top-tag{display:none}}
     @media print{body{background:#fff}.topbar,.tabs,.btn,.footer{display:none}.panel{box-shadow:none}.shell{margin:0}}
+
+    /* AI Prompthon premium final evaluation interface */
+    :root{--navy:#162d61;--navy2:#244a91;--ink:#18233e;--muted:#718099;--line:#dde4f0;--tint:#f1f5fc}
+    body{background:radial-gradient(950px 420px at 92% -3%,#dfe9ff 0,transparent 70%),#f6f8fc;color:var(--ink)}
+    .topbar{height:74px;border-bottom:1px solid #e4e8f4;background:#ffffffdd;backdrop-filter:blur(8px)}
+    .brand{font-size:21px;letter-spacing:-.7px}.brand small{font-size:10px}
+    .shell{max-width:1460px;margin:30px auto 65px}
+    .headline{margin-bottom:26px;align-items:center}
+    .headline .eyebrow{color:#697aa5}.headline h1{font-size:39px;letter-spacing:-1.8px;margin:6px 0}
+    .headline-small{font-size:17px;font-weight:500;color:#7080a7;letter-spacing:0;vertical-align:middle}
+    .tabs{background:#e8edf7;box-shadow:inset 0 0 0 1px #dce4f0}
+    .tab.active{color:#173774}
+    .panel{border-color:#e2e9f5;box-shadow:0 10px 30px #293c7510;border-radius:16px}
+    .btn{background:linear-gradient(130deg,#4278dc,#16376f);border:0;box-shadow:0 5px 14px #2c55a61a;border-radius:11px}
+    .btn.secondary{border:1px solid #d8e2f3;background:#fff;box-shadow:none}
+    .btn.ghost{background:transparent;box-shadow:none}
+    .review-progress{width:245px;margin:0 0 20px auto;border:1px solid #d9e2f1;background:#fff;border-radius:16px;padding:14px 17px;display:flex;gap:13px;align-items:center;box-shadow:0 7px 20px #2b3b7410}
+    .progress-icon{font-size:21px;color:#2b54a5;width:36px;height:36px;border:2px solid #365ba1;border-radius:10px;display:grid;place-items:center;flex:none}
+    .progress-info{flex:1;font-size:12px}.progress-info strong{display:block}.progress-info .hint{display:block}.progress-track{height:6px;background:#e2e8f3;border-radius:99px;overflow:hidden;margin-top:8px}.progress-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#5b8bdf,#1f4797);transition:width .3s}
+    .judge-layout{display:grid;grid-template-columns:280px minmax(0,1fr);gap:22px;align-items:stretch}
+    .judge-sidebar{min-height:690px;border-radius:18px;background:linear-gradient(160deg,#13264b 0%,#1a3465 60%,#3f63a7 100%);color:#fff;overflow:hidden;box-shadow:0 14px 35px #1c31522b;display:flex;flex-direction:column}
+    .sidebar-head{padding:26px 22px 17px;border-bottom:1px solid #ffffff28}.sidebar-head h2{font-size:20px;margin:7px 0}.sidebar-head p{margin:5px 0;color:#d0dbed;font-size:12px}.light{color:#afc6ed!important}
+    .judge-sidebar .teams{display:flex;flex-direction:column;gap:6px;padding:12px;flex:1}
+    .judge-sidebar .team{width:100%;border:1px solid transparent;border-radius:11px;background:transparent;color:#dfe8fb;padding:13px;text-align:left;min-width:0;box-shadow:none}
+    .judge-sidebar .team:hover{background:#ffffff15}.judge-sidebar .team.selected{background:#f0f4ff;color:#163263;border-color:#f0f4ff;box-shadow:0 4px 12px #101f4523}
+    .judge-sidebar .team h3{font-size:13px;line-height:1.4;word-break:break-word;margin:0}.judge-sidebar .team p{display:none}
+    .judge-sidebar .team .sectionhead{gap:7px;margin:0!important;align-items:center}.judge-sidebar .pill{font-size:9px;padding:3px 6px;color:#2b6e5a;flex:none}
+    .judge-sidebar .pill.pending{background:#ffffff22;color:#edf3ff}.judge-sidebar .selected .pill.pending{background:#dfe6f6;color:#536a9a}
+    .judge-sidebar .team .hint{display:none}
+    .sidebar-foot{padding:16px 18px;border-top:1px solid #ffffff21;display:flex;align-items:center;justify-content:space-between;font-size:10px;color:#a8c4ed}
+    .sidebar-foot .btn.ghost{color:#fff;font-size:11px}
+    .review-main{min-width:0}
+    .review-main .panel{padding:23px 24px}
+    .project-summary{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:16px;margin-bottom:17px}
+    .project-card{background:linear-gradient(115deg,#fff 68%,#e7eefe);border:1px solid #dce5f4;border-radius:17px;padding:22px 24px;box-shadow:0 5px 19px #213e8310;display:flex;align-items:center;gap:14px;min-width:0}
+    .project-card .project-symbol{width:51px;height:51px;border-radius:12px;background:#dbe8fa;color:#1e4b93;font-size:28px;display:grid;place-items:center;flex:none}
+    .project-card .eyebrow{font-size:10px;color:#7788a6}.project-card h2{font-size:22px;line-height:1.35;margin:3px 0}.project-card .hint{word-break:break-word}
+    .score-summary{background:linear-gradient(125deg,#0f2856,#2b59aa);color:#fff;border-radius:17px;box-shadow:0 9px 20px #243f8033;padding:21px 22px;display:flex;align-items:center;gap:14px}
+    .score-symbol{font-size:34px;opacity:.9}.score-summary .hint{color:#c0d4f7;font-size:10px;letter-spacing:2px;font-weight:800}.score-summary strong{font-size:39px;font-weight:800;line-height:1.25}.score-summary small{font-size:20px;color:#d2dff5}
+    .scoring-panel{padding:26px!important}.scoring-head{display:flex;gap:13px;align-items:center;margin-bottom:17px}.scoring-head .icon{background:#e6edfe;color:#2753ad;border-radius:12px;width:48px;height:48px;display:grid;place-items:center;font-size:21px}
+    .scoring-head h2{font-size:22px;margin:0}.scoring-head .hint{font-size:12px}
+    .scoring-rows{display:grid;gap:9px}
+    .score-row{display:grid;grid-template-columns:minmax(0,1fr) 70px minmax(210px,275px);align-items:center;gap:18px;padding:14px 16px;border:1px solid #e1e6f0!important;border-radius:12px;box-shadow:0 2px 6px #1c38650a}
+    .score-line{margin:0;align-items:center;min-width:0}.score-line strong{font-size:15px}.score-line .hint{font-size:12px;margin-top:3px}.criteria-index{width:40px;height:40px;background:#eaf0fc;color:#315cae;border-radius:10px;display:grid;place-items:center;flex:none;font-weight:800}
+    .weight-badge{padding:6px 7px;background:#e8ecfc;color:#283c81;border-radius:8px;text-align:center;font-weight:800;font-size:12px}
+    .score-controls{flex-wrap:nowrap;justify-content:flex-end}
+    .score-option{flex:1;min-width:0}.score-option label{width:100%;height:40px;font-size:16px;border-radius:10px;background:#fff;border:1px solid #cdd5e4;color:#303e5c}
+    .score-option input:checked+label{background:linear-gradient(150deg,#315da4,#142d62);color:#fff;border-color:#1c427f;box-shadow:0 3px 9px #22427a39}
+    .comment-head{margin:22px 0 9px;font-size:16px;display:flex;gap:10px;align-items:center}.comment-head span{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:#e8eefb;color:#254f9e}
+    .scoring-panel textarea{border-radius:11px;min-height:92px}
+    .scoring-panel .total{background:#f1f5fc;border:1px solid #e1e9f4;padding:11px 15px}.scoring-panel .total strong{font-size:22px}
+    .submit-actions{display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 0 0}
+    .submit-actions .btn{min-width:245px;padding:13px 25px;font-size:16px}
+    .submit-actions .lock-note{margin:0}
+    .review-main .info{margin:0 0 16px}
+    @media(max-width:1100px){.judge-layout{grid-template-columns:235px minmax(0,1fr)}.project-summary{grid-template-columns:1fr 225px}.score-row{grid-template-columns:minmax(0,1fr) 56px minmax(160px,205px);gap:10px}.score-controls{gap:5px}}
+    @media(max-width:800px){.headline h1{font-size:29px}.headline-small{display:block;margin-top:5px}.judge-layout{grid-template-columns:1fr}.judge-sidebar{min-height:0}.judge-sidebar .teams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.project-summary{grid-template-columns:1fr 195px}.review-main .panel{padding:17px}.score-row{grid-template-columns:1fr 62px;gap:8px}.score-controls{grid-column:1/-1}.score-option label{height:39px}.sidebar-foot{padding:7px 13px}}
+    @media(max-width:520px){.project-summary{grid-template-columns:1fr}.score-summary{justify-content:center}.judge-sidebar .teams{grid-template-columns:1fr}.score-row{padding:12px}.scoring-head h2{font-size:18px}.project-card h2{font-size:19px}.review-progress{width:100%}.tabs{width:100%}.tab{flex:1;padding:10px}.headline{margin-bottom:16px}}
+    
   </style>
 </head>
 <body>
   <header class="topbar"><div class="brand"><small>Viatris Korea · Digital Innovation</small>AI Prompthon</div><span class="top-tag">2026 FINAL EVALUATION</span></header>
   <main class="shell">
-    <div class="headline"><div><div class="eyebrow">Leadership Team · Final Review</div><h1>최종 심사 시스템</h1><p class="subtitle">팀별 구현 결과를 검토하고 평가를 제출하세요.</p></div>
+    <div class="headline"><div><div class="eyebrow">VIATRIS KOREA · 2026</div><h1>AI Prompthon <span class="headline-small">/ Final Evaluation</span></h1><p class="subtitle">팀별 결과물을 검토하고 평가 결과를 제출하는 최종 심사 페이지입니다.</p></div>
       <nav class="tabs" aria-label="모드 선택"><button type="button" class="tab active" data-tab="judge">개별 심사</button><button type="button" class="tab" data-tab="admin">결과 대시보드</button></nav>
     </div>
     <div id="notice" role="status"></div>
@@ -47,9 +106,15 @@
         <form id="judge-login-form" class="form-row"><input id="judge-code" aria-label="심사 코드" placeholder="개인 초대 코드" autocomplete="off" required/><button class="btn" type="submit">심사 시작</button></form>
       </div>
       <div id="judge-workspace" hidden>
-        <div class="panel"><div class="sectionhead"><div><h2 id="judge-greeting">심사자</h2><p id="judge-progress" class="hint"></p></div><button class="btn secondary" id="judge-logout">접속 종료</button></div>
-          <div id="judge-team-list" class="teams"></div></div>
-        <div id="judge-evaluation"></div>
+        <div class="review-progress"><div class="progress-icon">✓</div><div class="progress-info"><strong>평가 진행률</strong><span id="judge-progress" class="hint">0 / 0개 팀 평가 완료</span><div class="progress-track"><div id="progress-fill" class="progress-fill" style="width:0%"></div></div></div></div>
+        <div class="judge-layout">
+          <aside class="judge-sidebar">
+            <div class="sidebar-head"><div class="eyebrow light">PROJECT EVALUATION</div><h2>프로젝트 평가</h2><p id="judge-greeting">심사자</p></div>
+            <div id="judge-team-list" class="teams"></div>
+            <div class="sidebar-foot"><span>AI PROMPTHON 2026</span><button class="btn ghost" id="judge-logout">접속 종료</button></div>
+          </aside>
+          <div id="judge-evaluation" class="review-main"></div>
+        </div>
       </div>
     </section>
     <section id="admin" class="view">
