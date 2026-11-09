@@ -1,11 +1,7 @@
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/+esm";
-
 const cfg = window.promptthonConfig || {};
 const isPreview = new URLSearchParams(location.search).get("preview") === "1";
 const configured = /^https:\/\/[a-z0-9.-]+\.supabase\.co$/i.test(cfg.url || "") && (cfg.anonKey || "").length > 30;
-const db = configured ? createClient(cfg.url, cfg.anonKey, {
-  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-}) : null;
+let db = null;
 const $ = (selector) => document.querySelector(selector);
 const safe = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
@@ -338,6 +334,10 @@ async function init() {
     notice("현재 디자인 검토 단계입니다. 실제 심사 제출은 데이터 저장소 연결과 배포 설정을 마친 후 이용할 수 있습니다.");
     return;
   }
+  const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/+esm");
+  db = createClient(cfg.url, cfg.anonKey, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+  });
   const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
   const code = hash.get("code") || sessionStorage.getItem("prompthon_judge_token");
   if (code) { setTab("judge"); await loadJudge(code); }
